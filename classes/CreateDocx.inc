@@ -2281,14 +2281,17 @@ class CreateDocx
      *
      * @param string lang Language
      * @access private
+     * 
+     * Note: protected addStyle() function is created in the below.
      */
+/*
     private function addStyle($lang = 'en-US')
     {
         $style = CreateStyle::getInstance();
         $style->createStyle($lang);
         $this->_wordStylesC .= (string) $style;
     }
-
+*/
     /**
      * Add theme
      *
@@ -2468,4 +2471,91 @@ class CreateDocx
         );
     }
 
+//-------------------
+
+    /**
+     * set temporary file and reset ZipArchive object.
+     *
+     * @access public
+     * @param string $directory Directory path
+     */
+    public function setTempFile($directory) {
+
+        if (isset($this->_zipDocx) && $this->_zipDocx != null){
+            $this->_zipDocx = null;
+        }
+        $this->_zipDocx = new ZipArchive();
+        $this->_tempFile = tempnam($directory, 'document');
+        $this->_zipDocx->open($this->_tempFile, ZipArchive::OVERWRITE);
+    }
+
+    /**
+     * append string to $_wordDocumentC string.
+     *
+     * @access protected
+     * @param string $data (open document xml string)
+     */
+    protected function appendWordDocumentC($data) {
+        $this->_wordDocumentC .= $data;        
+    }
+
+    /**
+     * append string to $_wordRelsDocumentRelsC string.
+     *
+     * @access protected
+     * @param string $data (open document xml string)
+     */
+    protected function appendRelsDocumentRelsC($data) {
+        $this->_wordRelsDocumentRelsC .= $data;
+    }
+
+    /**
+     * append string to $_contentTypeC string.
+     *
+     * @access protected
+     * @param string $data (open document xml string)
+     */
+    protected function appendContentType($extension, $contentType) {
+       if (
+            strpos($this->_contentTypeC, 'Extension="' . $extension)
+            === false
+        ) {
+            $this->_contentTypeC .= '<Default Extension="' .
+                $extension . '" ContentType="' . $contentType . '"> </Default>';
+        }
+    }
+
+    /**
+     * append string to $_wordStylesC string.
+     *
+     * @access protected
+     * @param string $data (open document xml string)
+     */
+    protected function appendWordStyleC($data) {
+        $this->_wordStylesC .= $data;
+    }
+
+    /**
+     * add files to $_zipDocx.
+     *
+     * @access protected
+     * @param string $name (file name in document.xml)
+     * @param string $data (file name in zippped directory)
+     */
+    protected function addFileToZip($name, $data) {
+        $this->_zipDocx->addFile($name, $data);    
+    }
+
+    /**
+     * Add style
+     *
+     * @param string lang Language
+     * @access protected 
+     */
+    protected function addStyle($lang = 'en-US')
+    {
+        $style = CreateStyle::getInstance();
+        $style->createStyle($lang);
+        $this->_wordStylesC .= (string) $style;
+    }
 }
