@@ -2482,6 +2482,7 @@ class CreateDocx
     public function setTempFile($directory) {
 
         if (isset($this->_zipDocx) && $this->_zipDocx != null){
+            unlink($this->_tempFile);
             $this->_zipDocx = null;
         }
         $this->_zipDocx = new ZipArchive();
